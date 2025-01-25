@@ -23,7 +23,29 @@ struct
     , underline: char
     }
 
-  val unicode =
+  type unicode_chars =
+    { hbar: string
+    , vbar: string
+    , xbar: string
+    , vbar_break: string
+    , vbar_gap: string
+    , uarrow: string
+    , rarrow: string
+    , ltop: string
+    , mtop: string
+    , rtop: string
+    , lbot: string
+    , mbot: string
+    , rbot: string
+    , lbox: string
+    , rbox: string
+    , lcross: string
+    , rcross: string
+    , underbar: string
+    , underline: string
+    }
+
+  val unicode: unicode_chars =
     { hbar = "─"
     , vbar = "│"
     , xbar = "┼"
