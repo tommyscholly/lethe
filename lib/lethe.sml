@@ -46,7 +46,7 @@ struct
     }
 end
 
-structure Lethe=
+structure Lethe =
 struct
   open LineRange
   open Util
@@ -82,15 +82,19 @@ struct
       text
     end
 
-  fun print_line line_text underline_start underline_end
-    hint_msg =
+  fun print_line line_text line_no underline_start underline_end hint_msg =
     let
+      val info_padding =
+        " " ^ Int.toString line_no ^ " " ^ (Char.toString (#vbar Chars.ascii))
+        ^ "   "
       val underline_text =
-        StringCvt.padLeft #" " (underline_start - 1) ""
+        StringCvt.padLeft #" " (String.size info_padding) ""
+        ^ StringCvt.padLeft #" " (underline_start - 1) ""
         ^
         StringCvt.padLeft (#underline Chars.ascii)
-          (underline_end - underline_start + 1) "" ^ "  " ^hint_msg
+          (underline_end - underline_start + 1) "" ^ "  " ^ hint_msg
     in
+      print info_padding;
       print line_text;
       print "\n";
       print underline_text;
@@ -103,7 +107,7 @@ struct
       val lines = LineRange.find_lines file_contents range_start range_end
     in
       print (msg ^ "\n")
-      (* print (lines ^ "\n") *)
+    (* print (lines ^ "\n") *)
     end
 
   fun report_error file (labels: label list) error_text error_no =
@@ -123,4 +127,5 @@ struct
     end
 end
 
-val _ = Lethe.print_line "Hello, world!" 8 12 "consider making this not so generic"
+val _ = Lethe.print_line "Hello, world!" 1 8 12
+  "consider making this not so generic"
