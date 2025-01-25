@@ -1,5 +1,3 @@
-# Makefile for Lethe project
-
 # Configuration
 MLB       = lethe.mlb
 TARGET    = lethe
@@ -16,7 +14,7 @@ all: build test
 
 build: check-mlton
 	@echo "Building $(TARGET)..."
-	@mlton $(MLB)
+	@mlton -default-ann 'allowExtendedTextConsts true' $(MLB)
 	@echo "Build successful. Binary: ./$(TARGET)"
 
 test: build
@@ -26,7 +24,7 @@ test: build
 
 format: check-smlfmt
 	@echo "Formatting source files..."
-	@$(FORMATTER) --force $(SRC_DIR)/*.sml
+	@$(FORMATTER) -allow-extended-text-consts true --force $(SRC_DIR)/*.sml
 	@echo "Formatting complete"
 
 clean:

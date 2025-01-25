@@ -9,5 +9,7 @@ sig
   val red: string
   val yellow: string
   val green: string
+  val cyan: string
+  val white: string
   val reset: string
 end

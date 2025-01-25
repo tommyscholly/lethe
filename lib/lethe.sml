@@ -23,6 +23,28 @@ struct
     , underline: char
     }
 
+  val unicode =
+    { hbar = "─"
+    , vbar = "│"
+    , xbar = "┼"
+    , vbar_break = "┆"
+    , vbar_gap = "┆"
+    , uarrow = "▲"
+    , rarrow = "▶"
+    , ltop = "╭"
+    , mtop = "┬"
+    , rtop = "╮"
+    , lbot = "╰"
+    , mbot = "┴"
+    , rbot = "╯"
+    , lbox = "["
+    , rbox = "]"
+    , lcross = "├"
+    , rcross = "┤"
+    , underbar = "┬"
+    , underline = "─"
+    }
+
   val ascii: chars =
     { hbar = #"-"
     , vbar = #"|"
@@ -52,20 +74,25 @@ struct
   open Util
   open Colors
 
-  datatype label_kind = NORMAL | SEVERE | WARNING | INFO
+  datatype LabelKind = NORMAL | ERROR | WARNING | INFO
+
+  fun kind_to_color NORMAL = Colors.white
+    | kind_to_color ERROR = Colors.red
+    | kind_to_color WARNING = Colors.yellow
+    | kind_to_color INFO = Colors.cyan
 
   type label =
     { file: string
     , range_start: int
     , range_end: int
     , msg: string
-    , kind: label_kind
+    , kind: LabelKind
     }
 
   (* the text field holds all the data between the lines *)
   type text_info = {text: string, line_start: int, line_end: int}
 
-  fun create_label file range_start range_end msg (kind: label_kind) : label =
+  fun create_label file range_start range_end msg (kind: LabelKind) : label =
     { file = file
     , range_start = range_start
     , range_end = range_end
@@ -82,22 +109,28 @@ struct
       text
     end
 
-  fun print_line line_text line_no underline_start underline_end hint_msg =
+  fun pad_left str n =
+    if n = 0 then str else str ^ pad_left str (n - 1)
+
+  fun print_line line_text line_no underline_start underline_end hint_msg color =
     let
-      val info_padding =
-        " " ^ Int.toString line_no ^ " " ^ (Char.toString (#vbar Chars.ascii))
-        ^ "   "
+      val line_no_padding = " " ^ Int.toString line_no ^ " "
+      val info_padding = (#vbar Chars.unicode) ^ "   "
+
+      val underline_bar =
+        (StringCvt.padLeft #" " (String.size line_no_padding) "")
+        ^ (#vbar_gap Chars.unicode)
       val underline_text =
-        StringCvt.padLeft #" " (String.size info_padding) ""
-        ^ StringCvt.padLeft #" " (underline_start - 1) ""
+        StringCvt.padLeft #" " ((String.size info_padding) - 3) ""
         ^
-        StringCvt.padLeft (#underline Chars.ascii)
-          (underline_end - underline_start + 1) "" ^ "  " ^ hint_msg
+        Colors.with_this_color color
+          (StringCvt.padLeft (#underline Chars.ascii)
+             (underline_end - underline_start) "" ^ "  " ^ hint_msg)
     in
-      print info_padding;
+      print (line_no_padding ^ info_padding);
       print line_text;
       print "\n";
-      print underline_text;
+      print (underline_bar ^ underline_text);
       print "\n"
     end
 
@@ -106,8 +139,29 @@ struct
       val file_contents = read_to_string file
       val lines = LineRange.find_lines file_contents range_start range_end
     in
-      print (msg ^ "\n")
-    (* print (lines ^ "\n") *)
+      if List.length lines = 1 then
+        let
+          val line = List.hd lines
+          val line_start = #start_pos line
+          val line_end = #end_pos line
+          val line_length = line_end - line_start
+
+          (* calculate positions relative to line start *)
+          val raw_start = range_start - line_start
+          val raw_end = range_end - line_start
+
+          (* clamp values to line boundaries *)
+          val start_pos = Int.max (0, Int.min (raw_start, line_length))
+          val end_pos = Int.max (0, Int.min (raw_end, line_length))
+
+          (* ensure end >= start *)
+          val end_pos = Int.max (start_pos, end_pos)
+        in
+          print_line (#content line) (#line_number line) start_pos end_pos msg
+            (kind_to_color kind)
+        end
+      else
+        print "todo"
     end
 
   fun report_error file (labels: label list) error_text error_no =
@@ -117,15 +171,36 @@ struct
           (fn (l1: label, l2: label) =>
              Int.compare (#range_start l1, #range_start l2)) labels
     in
-      print "Error ";
+      print "Error";
       (case error_no of
-         SOME no => print ("[" ^ (Int.toString no ^ "] "))
+         SOME no => print (" [" ^ (Int.toString no ^ "]"))
        | NONE => ());
-      print error_text;
+      print (": " ^ error_text ^ "\n");
+      print ("   " ^ (#ltop Chars.unicode) ^ (#hbar Chars.unicode));
+      (* print ("   " ^ "__" ); *)
+      print ("[" ^ file ^ "]:\n");
 
-      print ("Error in file " ^ file ^ "\n")
+      List.app print_label labels;
+      (* print (StringCvt.padLeft  3 ""); *)
+      print (pad_left (#hbar Chars.unicode) 2);
+      (* print ((#hbar Chars.unicode) ^ (#hbar Chars.unicode) ^ (#hbar Chars.unicode)); *)
+      (* print (StringCvt.padLeft #"_" 4 ""); *)
+      print ((#rbot Chars.unicode) ^ "\n");
+      ()
     end
 end
 
-val _ = Lethe.print_line "Hello, world!" 1 8 12
-  "consider making this not so generic"
+(* val _ = Lethe.print_line "Hello, world!" 1 8 12 *)
+(*   "consider making this not so generic" *)
+
+fun test_fizzbuzz () =
+  let
+    val label =
+      Lethe.create_label "test/fizzbuzz.hs" 0 6 "This is a test" Lethe.NORMAL
+    val label2 =
+      Lethe.create_label "test/fizzbuzz.hs" 23 31 "Another test" Lethe.ERROR
+  in
+    Lethe.report_error "test/fizzbuzz.hs" [label, label2] "Test Error" NONE
+  end
+
+val _ = test_fizzbuzz ()
