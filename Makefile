@@ -24,7 +24,7 @@ test: build
 
 format: check-smlfmt
 	@echo "Formatting source files..."
-	@$(FORMATTER) -allow-extended-text-consts true --force $(SRC_DIR)/*.sml
+	@$(FORMATTER) -allow-extended-text-consts true -max-width 120 --force $(SRC_DIR)/*.sml
 	@echo "Formatting complete"
 
 clean:

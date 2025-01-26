@@ -24,9 +24,7 @@ struct
       (* 3, 5 *)
       val line_padding = if in_multi then "   " else "     "
 
-      val underline_vbar =
-        (StringCvt.padLeft #" " (String.size line_no_padding) "")
-        ^ (#vbar_gap Chars.unicode)
+      val underline_vbar = (StringCvt.padLeft #" " (String.size line_no_padding) "") ^ (#vbar_gap Chars.unicode)
       val underline_padding = " "
     (* this probably can just be " " *)
     (* StringCvt.padLeft #" " (String.size info_padding - 3) "" *)
@@ -38,11 +36,9 @@ struct
     end
 
 
-  fun render_line (line: Line, line_number: int, color: string, in_multi: bool) :
-    string =
+  fun render_line (line: Line, line_number: int, color: string, in_multi: bool) : string =
     let
-      val (line_padding, underline_padding, end_pad) =
-        line_padding line_number in_multi
+      val (line_padding, underline_padding, end_pad) = line_padding line_number in_multi
     in
       case line of
         SingleLine (content, start_col, end_col, msg) =>
@@ -50,8 +46,7 @@ struct
           ^ StringCvt.padLeft #" " (start_col - 1) ""
           ^
           Colors.with_this_color color
-            (StringCvt.padLeft (#underline Chars.ascii) (end_col - start_col) ""
-             ^ "  " ^ msg ^ "\n")
+            (StringCvt.padLeft (#underline Chars.ascii) (end_col - start_col) "" ^ "  " ^ msg ^ "\n")
       | MultiLineStart (content, start_col, end_col) =>
           if in_multi then
             raise Fail "nested multiline"
@@ -60,20 +55,16 @@ struct
             (* val colored_content = String.substring *)
             (*   (content, start_col - 1, end_col - start_col + 1) *)
             in
-              line_padding ^ (" " ^ (#ltop Chars.unicode))
-              ^ (#hbar Chars.unicode) ^ (#rarrow Chars.unicode) ^ " " ^ content
-              ^ "\n"
+              line_padding ^ (" " ^ (#ltop Chars.unicode)) ^ (#hbar Chars.unicode) ^ (#rarrow Chars.unicode) ^ " "
+              ^ content ^ "\n"
             end
       | MultiLineEnd (content, start_col, end_col, msg) =>
           if not in_multi then
             raise Fail "multiline end without start"
           else
             line_padding ^ end_pad ^ content ^ "\n"
-            ^
-            (String.substring
-               (underline_padding, 0, String.size underline_padding - 3))
-            ^ (#lbot Chars.unicode) ^ (pad_left (#hbar Chars.unicode) 3)
-            ^ (#rarrow Chars.unicode) ^ " " ^ (Colors.with_this_color color msg)
+            ^ (String.substring (underline_padding, 0, String.size underline_padding - 3)) ^ (#lbot Chars.unicode)
+            ^ (pad_left (#hbar Chars.unicode) 3) ^ (#rarrow Chars.unicode) ^ " " ^ (Colors.with_this_color color msg)
             ^ "\n"
     (* | _ => "todo" *)
 
@@ -90,18 +81,9 @@ val _ = print "Running renderer tests\n"
 (*    ^ "\n") *)
 
 val test_multi =
-  Renderer.render_line
-    (Renderer.MultiLineStart ("hello", 1, 5), 1, Colors.red, false)
-  ^
-  Renderer.render_line
-    (Renderer.SingleLine ("world", 1, 5, "an error here"), 2, Colors.red, true)
-  ^
-  (Renderer.render_line
-     ( Renderer.MultiLineEnd ("}", 1, 5, " expected <type>")
-     , 3
-     , Colors.red
-     , true
-     ))
+  Renderer.render_line (Renderer.MultiLineStart ("hello", 1, 5), 1, Colors.red, false)
+  ^ Renderer.render_line (Renderer.SingleLine ("world", 1, 5, "an error here"), 2, Colors.red, true)
+  ^ (Renderer.render_line (Renderer.MultiLineEnd ("}", 1, 5, " expected <type>"), 3, Colors.red, true))
 
 val _ = print (test_multi ^ "\n")
 val _ = print "render test done\n\n"

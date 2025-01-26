@@ -13,24 +13,13 @@ struct
     | kind_to_color WARNING = Colors.yellow
     | kind_to_color INFO = Colors.cyan
 
-  type label =
-    { file: string
-    , range_start: int
-    , range_end: int
-    , msg: string
-    , kind: LabelKind
-    }
+  type label = {file: string, range_start: int, range_end: int, msg: string, kind: LabelKind}
 
   (* the text field holds all the data between the lines *)
   type text_info = {text: string, line_start: int, line_end: int}
 
   fun create_label file range_start range_end msg (kind: LabelKind) : label =
-    { file = file
-    , range_start = range_start
-    , range_end = range_end
-    , msg = msg
-    , kind = kind
-    }
+    {file = file, range_start = range_start, range_end = range_end, msg = msg, kind = kind}
 
   fun read_to_string file =
     let
@@ -51,16 +40,12 @@ struct
       val line_no_padding = " " ^ Int.toString line_no ^ " "
       val info_padding = (#vbar Chars.unicode) ^ "   "
 
-      val underline_bar =
-        (StringCvt.padLeft #" " (String.size line_no_padding) "")
-        ^ (#vbar_gap Chars.unicode)
+      val underline_bar = (StringCvt.padLeft #" " (String.size line_no_padding) "") ^ (#vbar_gap Chars.unicode)
       val underline_text =
-        StringCvt.padLeft #" " (String.size info_padding - 3) ""
-        ^ StringCvt.padLeft #" " (underline_start - 1) ""
+        StringCvt.padLeft #" " (String.size info_padding - 3) "" ^ StringCvt.padLeft #" " (underline_start - 1) ""
         ^
         Colors.with_this_color color
-          (StringCvt.padLeft (#underline Chars.ascii)
-             (underline_end - underline_start) "" ^ "  " ^ hint_msg)
+          (StringCvt.padLeft (#underline Chars.ascii) (underline_end - underline_start) "" ^ "  " ^ hint_msg)
     in
       print (line_no_padding ^ info_padding);
       print line_text;
@@ -92,8 +77,7 @@ struct
           (* ensure end >= start *)
           val end_pos = Int.max (start_pos, end_pos) + 1
         in
-          print_line (#content line) (#line_number line) start_pos end_pos msg
-            (kind_to_color kind)
+          print_line (#content line) (#line_number line) start_pos end_pos msg (kind_to_color kind)
         end
       else
         print "todo"
@@ -102,9 +86,7 @@ struct
   fun report_error file (labels: label list) error_text error_no =
     let
       val labels: label list =
-        Util.quickSort
-          (fn (l1: label, l2: label) =>
-             Int.compare (#range_start l1, #range_start l2)) labels
+        Util.quickSort (fn (l1: label, l2: label) => Int.compare (#range_start l1, #range_start l2)) labels
     in
       print "Error";
       (case error_no of
@@ -138,26 +120,19 @@ fun print_range file range_start range_end =
 
 fun test_fizzbuzz () =
   let
-    val label =
-      Lethe.create_label "test/fizzbuzz.hs" 0 5 "This is a test" Lethe.NORMAL
-    val label2 =
-      Lethe.create_label "test/fizzbuzz.hs" 23 30 "Another test" Lethe.ERROR
+    val label = Lethe.create_label "test/fizzbuzz.hs" 0 5 "This is a test" Lethe.NORMAL
+    val label2 = Lethe.create_label "test/fizzbuzz.hs" 23 30 "Another test" Lethe.ERROR
   in
     Lethe.report_error "test/fizzbuzz.hs" [label, label2] "Test Error" NONE
   end
 
 fun test_actual_error () =
   let
-    val label =
-      Lethe.create_label "test/fizzbuzz.hs" 43 48 "Defined here" Lethe.INFO
-    val err_label =
-      Lethe.create_label "test/fizzbuzz.hs" 166 167 "Expected String, got Int"
-        Lethe.ERROR
+    val label = Lethe.create_label "test/fizzbuzz.hs" 43 48 "Defined here" Lethe.INFO
+    val err_label = Lethe.create_label "test/fizzbuzz.hs" 166 167 "Expected String, got Int" Lethe.ERROR
   in
-    Lethe.report_error "test/fizzbuzz.hs" [label, err_label]
-      "Return Type Mismatch" NONE
+    Lethe.report_error "test/fizzbuzz.hs" [label, err_label] "Return Type Mismatch" NONE
   end
 
 val _ = test_fizzbuzz ()
-val _ =
-  test_actual_error () (* val _ = print_range "test/fizzbuzz.hs" 140 180 *)
+val _ = test_actual_error () (* val _ = print_range "test/fizzbuzz.hs" 140 180 *)
