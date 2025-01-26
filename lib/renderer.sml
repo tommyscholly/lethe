@@ -57,22 +57,24 @@ struct
             raise Fail "nested multiline"
           else
             let
-              (* val colored_content = String.substring *)
-              (*   (content, start_col - 1, end_col - start_col + 1) *)
+            (* val colored_content = String.substring *)
+            (*   (content, start_col - 1, end_col - start_col + 1) *)
             in
-              line_padding ^ (" " ^ (#ltop Chars.unicode)) ^ (#hbar
-              Chars.unicode) ^ (#rarrow Chars.unicode) ^ " " ^ content ^ "\n"
+              line_padding ^ (" " ^ (#ltop Chars.unicode))
+              ^ (#hbar Chars.unicode) ^ (#rarrow Chars.unicode) ^ " " ^ content
+              ^ "\n"
             end
       | MultiLineEnd (content, start_col, end_col, msg) =>
           if not in_multi then
             raise Fail "multiline end without start"
           else
             line_padding ^ end_pad ^ content ^ "\n"
-            ^ (String.substring (underline_padding, 0, String.size
-            underline_padding - 3)) 
-            ^ (#lbot Chars.unicode) ^ (pad_left (#hbar Chars.unicode) 3)  ^
-            (#rarrow Chars.unicode) ^ " " ^
-            (Colors.with_this_color color msg) ^ "\n"
+            ^
+            (String.substring
+               (underline_padding, 0, String.size underline_padding - 3))
+            ^ (#lbot Chars.unicode) ^ (pad_left (#hbar Chars.unicode) 3)
+            ^ (#rarrow Chars.unicode) ^ " " ^ (Colors.with_this_color color msg)
+            ^ "\n"
     (* | _ => "todo" *)
 
 
