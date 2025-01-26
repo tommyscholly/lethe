@@ -1,100 +1,10 @@
-(* Taken from https://github.com/zesterer/ariadne/blob/main/src/draw.rs#L56 *)
-structure Chars =
-struct
-  type chars =
-    { hbar: char
-    , vbar: char
-    , xbar: char
-    , vbar_break: char
-    , vbar_gap: char
-    , uarrow: char
-    , rarrow: char
-    , ltop: char
-    , mtop: char
-    , rtop: char
-    , lbot: char
-    , mbot: char
-    , rbot: char
-    , lbox: char
-    , rbox: char
-    , lcross: char
-    , rcross: char
-    , underbar: char
-    , underline: char
-    }
-
-  type unicode_chars =
-    { hbar: string
-    , vbar: string
-    , xbar: string
-    , vbar_break: string
-    , vbar_gap: string
-    , uarrow: string
-    , rarrow: string
-    , ltop: string
-    , mtop: string
-    , rtop: string
-    , lbot: string
-    , mbot: string
-    , rbot: string
-    , lbox: string
-    , rbox: string
-    , lcross: string
-    , rcross: string
-    , underbar: string
-    , underline: string
-    }
-
-  val unicode: unicode_chars =
-    { hbar = "─"
-    , vbar = "│"
-    , xbar = "┼"
-    , vbar_break = "┆"
-    , vbar_gap = "┆"
-    , uarrow = "▲"
-    , rarrow = "▶"
-    , ltop = "╭"
-    , mtop = "┬"
-    , rtop = "╮"
-    , lbot = "╰"
-    , mbot = "┴"
-    , rbot = "╯"
-    , lbox = "["
-    , rbox = "]"
-    , lcross = "├"
-    , rcross = "┤"
-    , underbar = "┬"
-    , underline = "─"
-    }
-
-  val ascii: chars =
-    { hbar = #"-"
-    , vbar = #"|"
-    , xbar = #"+"
-    , vbar_break = #"*"
-    , vbar_gap = #":"
-    , uarrow = #"^"
-    , rarrow = #">"
-    , ltop = #","
-    , mtop = #"v"
-    , rtop = #"."
-    , lbot = #"`"
-    , mbot = #"^"
-    , rbot = #"'"
-    , lbox = #"["
-    , rbox = #"]"
-    , lcross = #"|"
-    , rcross = #"|"
-    , underbar = #"|"
-    , underline = #"^"
-    }
-end
-
 structure Lethe =
 struct
+  open Chars
   open LineRange
   open Util
   open Colors
+  open Renderer
 
   datatype LabelKind = NORMAL | ERROR | WARNING | INFO
 
@@ -136,6 +46,8 @@ struct
 
   fun print_line line_text line_no underline_start underline_end hint_msg color =
     let
+      (* val _ = print("underline_start: " ^ Int.toString underline_start ^ "\n") *)
+      (* val _ =print("underline_end: " ^ Int.toString underline_end ^ "\n") *)
       val line_no_padding = " " ^ Int.toString line_no ^ " "
       val info_padding = (#vbar Chars.unicode) ^ "   "
 
@@ -143,7 +55,8 @@ struct
         (StringCvt.padLeft #" " (String.size line_no_padding) "")
         ^ (#vbar_gap Chars.unicode)
       val underline_text =
-        StringCvt.padLeft #" " ((String.size info_padding) - 3) ""
+        StringCvt.padLeft #" " (String.size info_padding - 3) ""
+        ^ StringCvt.padLeft #" " (underline_start - 1) ""
         ^
         Colors.with_this_color color
           (StringCvt.padLeft (#underline Chars.ascii)
@@ -177,7 +90,7 @@ struct
           val end_pos = Int.max (0, Int.min (raw_end, line_length))
 
           (* ensure end >= start *)
-          val end_pos = Int.max (start_pos, end_pos)
+          val end_pos = Int.max (start_pos, end_pos) + 1
         in
           print_line (#content line) (#line_number line) start_pos end_pos msg
             (kind_to_color kind)
@@ -214,15 +127,37 @@ end
 
 (* val _ = Lethe.print_line "Hello, world!" 1 8 12 *)
 (*   "consider making this not so generic" *)
+fun print_range file range_start range_end =
+  let
+    val file_contents = Lethe.read_to_string file
+    val lines = LineRange.find_lines file_contents range_start range_end
+  in
+    List.app (fn line => print (#content line ^ "\n")) lines
+  end
+
 
 fun test_fizzbuzz () =
   let
     val label =
-      Lethe.create_label "test/fizzbuzz.hs" 0 6 "This is a test" Lethe.NORMAL
+      Lethe.create_label "test/fizzbuzz.hs" 0 5 "This is a test" Lethe.NORMAL
     val label2 =
-      Lethe.create_label "test/fizzbuzz.hs" 23 31 "Another test" Lethe.ERROR
+      Lethe.create_label "test/fizzbuzz.hs" 23 30 "Another test" Lethe.ERROR
   in
     Lethe.report_error "test/fizzbuzz.hs" [label, label2] "Test Error" NONE
   end
 
+fun test_actual_error () =
+  let
+    val label =
+      Lethe.create_label "test/fizzbuzz.hs" 43 48 "Defined here" Lethe.INFO
+    val err_label =
+      Lethe.create_label "test/fizzbuzz.hs" 166 167 "Expected String, got Int"
+        Lethe.ERROR
+  in
+    Lethe.report_error "test/fizzbuzz.hs" [label, err_label]
+      "Return Type Mismatch" NONE
+  end
+
 val _ = test_fizzbuzz ()
+val _ =
+  test_actual_error () (* val _ = print_range "test/fizzbuzz.hs" 140 180 *)

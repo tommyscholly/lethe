@@ -1,8 +1,10 @@
 $(SML_LIB)/basis/basis.mlb
 $(SML_LIB)/basis/mlton.mlb
+lib/chars.sml
 lib/line_range.sml
 lib/colors.sig
 lib/colors.sml
+lib/renderer.sml
 lib/util.sml
 lib/lethe.sig
 lib/lethe.sml
