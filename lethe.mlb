@@ -4,7 +4,9 @@ lib/chars.sml
 lib/line_range.sml
 lib/colors.sig
 lib/colors.sml
-lib/renderer.sml
 lib/util.sml
+lib/renderer.sml
+lib/report.sig
+lib/report.sml
 lib/lethe.sig
 lib/lethe.sml

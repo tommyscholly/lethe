@@ -1,6 +1,15 @@
 structure Util =
 struct
-  fun quickSort cmp [] = []
+  fun read_to_string file =
+    let
+      val stream = TextIO.openIn file
+      val text = TextIO.inputAll stream
+    in
+      TextIO.closeIn stream;
+      text
+    end
+
+  fun quickSort _ [] = []
     | quickSort cmp (pivot :: rest) =
         let
           fun partition ([], less, greater) = (less, greater)

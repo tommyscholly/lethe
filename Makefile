@@ -27,6 +27,7 @@ format: check-smlfmt
 	@$(FORMATTER) -allow-extended-text-consts true -max-width 120 --force $(SRC_DIR)/*.sml
 	@echo "Formatting complete"
 
+fmt: format
 clean:
 	@echo "Cleaning up..."
 	@rm -f $(TARGET)
