@@ -22,13 +22,13 @@ struct
   fun line_padding line_no in_multi =
     let
       val line_no_padding = " " ^ Int.toString line_no ^ " "
-      val multi_padding = if in_multi then " " ^ (#vbar Chars.unicode) else ""
+      val multi_padding = if in_multi then " " ^ (Chars.unicode Chars.Vbar) else ""
       (* 3, 5 *)
       val line_padding = if in_multi then " " else "   "
 
-      val underline_vbar = (StringCvt.padLeft #" " (String.size line_no_padding) "") ^ (#vbar_break Chars.unicode)
+      val underline_vbar = (StringCvt.padLeft #" " (String.size line_no_padding) "") ^ (Chars.unicode Chars.VbarBreak)
     in
-      ( line_no_padding ^ (#vbar Chars.unicode) ^ multi_padding (* )^ "   " *)
+      ( line_no_padding ^ (Chars.unicode Chars.Vbar) ^ multi_padding (* )^ "   " *)
       , underline_vbar ^ multi_padding
       , line_padding
       )
@@ -47,25 +47,23 @@ struct
           ^ StringCvt.padLeft #" " (start_col - 1) ""
           ^
           Colors.with_this_color color
-            (StringCvt.padLeft (#underline Chars.ascii) (end_col - start_col) "" ^ "  " ^ msg ^ "\n")
+            (pad_left (Chars.ascii Chars.Underline) (end_col - start_col) ^ "  " ^ msg ^ "\n")
       | MultiLineStart (content, _, _) =>
           if in_multi then
             raise Fail "nested multiline"
           else
             (* val colored_content = String.substring *)
             (*   (content, start_col - 1, end_col - start_col + 1) *)
-            line_padding ^ (" " ^ (#ltop Chars.unicode)) ^ (#hbar Chars.unicode) ^ content
-            ^ "\n"
+            line_padding ^ (" " ^ (Chars.unicode Chars.LTop)) ^ (Chars.unicode Chars.Hbar) ^ content ^ "\n"
       | MultiLineEnd (_, end_col, msg) =>
           if not in_multi then
             raise Fail "multiline end without start"
           else
             (* (String.substring (line_padding, 0, String.size line_padding - 3)) ^ (#lcross Chars.unicode) *)
             (* ^ (#rarrow Chars.unicode) ^ (*end_pad ^ *) content ^ "\n" ^ *)
-            (String.substring (underline_padding, 0, String.size
-            underline_padding - 3)) ^ (#lbot Chars.unicode) 
-            ^ (pad_left (#hbar Chars.unicode) end_col) ^ (#rbot Chars.unicode) ^
-            " "^ (Colors.with_this_color color msg) ^ "\n"
+            (String.substring (underline_padding, 0, String.size underline_padding - 3)) ^ (Chars.unicode Chars.LBot)
+            ^ (pad_left (Chars.unicode Chars.Hbar) end_col) ^ (Chars.unicode Chars.RBot) ^ " "
+            ^ (Colors.with_this_color color msg) ^ "\n"
     (* | _ => "todo" *)
 
 
@@ -84,24 +82,24 @@ struct
            | _ => in_multi)
 
   fun render_report_header file =
-    let val _ = print ("   " ^ (#ltop Chars.unicode) ^ (#hbar Chars.unicode))
+    let val _ = print ("   " ^ (Chars.unicode Chars.LTop) ^ (Chars.unicode Chars.Hbar))
     in print ("[" ^ file ^ "]:\n")
     end
 
   fun render_report_footer () =
-    let val _ = print (pad_left (#hbar Chars.unicode) 2)
-    in print ((#rbot Chars.unicode) ^ "\n")
+    let val _ = print (pad_left (Chars.unicode Chars.Hbar) 2)
+    in print ((Chars.unicode Chars.RBot) ^ "\n")
     end
 
   fun render file lines =
     let
       val rendering = render_rline lines false
     in
-      print ("   " ^ (#ltop Chars.unicode) ^ (#hbar Chars.unicode));
+      print ("   " ^ (Chars.unicode Chars.LTop) ^ (Chars.unicode Chars.Hbar));
       print ("[" ^ file ^ "]:\n");
 
       print rendering;
-      print (pad_left (#hbar Chars.unicode) 2);
-      print ((#rbot Chars.unicode) ^ "\n")
+      print (pad_left (Chars.unicode Chars.Hbar) 2);
+      print ((Chars.unicode Chars.RBot) ^ "\n")
     end
 end

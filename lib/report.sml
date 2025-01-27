@@ -117,10 +117,9 @@ struct
                 num_skipped := 0;
                 if has_selection then
                   let
-                    val sel_end = #sel_end (Option.valOf (#selection report)) 
+                    val sel_end = #sel_end (Option.valOf (#selection report))
                     val sel_msg = #sel_msg (Option.valOf (#selection report))
-                    val selection_end = Renderer.MultiLineEnd
-                    (0, sel_end - line_start, sel_msg)
+                    val selection_end = Renderer.MultiLineEnd (0, sel_end - line_start, sel_msg)
                   in
                     if line_start <= sel_end andalso line_end >= sel_end then
                       ( print line

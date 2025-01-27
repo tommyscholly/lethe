@@ -1,91 +1,64 @@
 (* Taken from https://github.com/zesterer/ariadne/blob/main/src/draw.rs#L56 *)
 structure Chars =
 struct
-  type chars =
-    { hbar: char
-    , vbar: char
-    , xbar: char
-    , vbar_break: char
-    , vbar_gap: char
-    , uarrow: char
-    , rarrow: char
-    , ltop: char
-    , mtop: char
-    , rtop: char
-    , lbot: char
-    , mbot: char
-    , rbot: char
-    , lbox: char
-    , rbox: char
-    , lcross: char
-    , rcross: char
-    , underbar: char
-    , underline: char
-    }
+  datatype Char =
+    Hbar
+  | Vbar
+  | Xbar
+  | VbarBreak
+  | VbarGap
+  | UArrow
+  | RArrow
+  | LTop
+  | MTop
+  | RTop
+  | LBot
+  | MBot
+  | RBot
+  | LBox
+  | RBox
+  | LCross
+  | RCross
+  | Underbar
+  | Underline
 
-  type unicode_chars =
-    { hbar: string
-    , vbar: string
-    , xbar: string
-    , vbar_break: string
-    , vbar_gap: string
-    , uarrow: string
-    , rarrow: string
-    , ltop: string
-    , mtop: string
-    , rtop: string
-    , lbot: string
-    , mbot: string
-    , rbot: string
-    , lbox: string
-    , rbox: string
-    , lcross: string
-    , rcross: string
-    , underbar: string
-    , underline: string
-    }
+  fun ascii Hbar = "-"
+    | ascii Vbar = "|"
+    | ascii Xbar = "+"
+    | ascii VbarBreak = "*"
+    | ascii VbarGap = ":"
+    | ascii UArrow = "^"
+    | ascii RArrow = ">"
+    | ascii LTop = ","
+    | ascii MTop = "v"
+    | ascii RTop = "."
+    | ascii LBot = "`"
+    | ascii MBot = "^"
+    | ascii RBot = "'"
+    | ascii LBox = "["
+    | ascii RBox = "]"
+    | ascii LCross = "|"
+    | ascii RCross = "|"
+    | ascii Underbar = "|"
+    | ascii Underline = "^"
 
-  val unicode: unicode_chars =
-    { hbar = "─"
-    , vbar = "│"
-    , xbar = "┼"
-    , vbar_break = "┆"
-    , vbar_gap = "┆"
-    , uarrow = "▲"
-    , rarrow = "▶"
-    , ltop = "╭"
-    , mtop = "┬"
-    , rtop = "╮"
-    , lbot = "╰"
-    , mbot = "┴"
-    , rbot = "╯"
-    , lbox = "["
-    , rbox = "]"
-    , lcross = "├"
-    , rcross = "┤"
-    , underbar = "┬"
-    , underline = "─"
-    }
-
-  val ascii: chars =
-    { hbar = #"-"
-    , vbar = #"|"
-    , xbar = #"+"
-    , vbar_break = #"*"
-    , vbar_gap = #":"
-    , uarrow = #"^"
-    , rarrow = #">"
-    , ltop = #","
-    , mtop = #"v"
-    , rtop = #"."
-    , lbot = #"`"
-    , mbot = #"^"
-    , rbot = #"'"
-    , lbox = #"["
-    , rbox = #"]"
-    , lcross = #"|"
-    , rcross = #"|"
-    , underbar = #"|"
-    , underline = #"^"
-    }
+  fun unicode Hbar = "─"
+    | unicode Vbar = "│"
+    | unicode Xbar = "┼"
+    | unicode VbarBreak = "┆"
+    | unicode VbarGap = "┆"
+    | unicode UArrow = "▲"
+    | unicode RArrow = "▶"
+    | unicode LTop = "╭"
+    | unicode MTop = "┬"
+    | unicode RTop = "╮"
+    | unicode LBot = "╰"
+    | unicode MBot = "┴"
+    | unicode RBot = "╯"
+    | unicode LBox = "["
+    | unicode RBox = "]"
+    | unicode LCross = "├"
+    | unicode RCross = "┤"
+    | unicode Underbar = "┬"
+    | unicode Underline = "─"
 end
