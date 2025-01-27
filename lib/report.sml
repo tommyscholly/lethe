@@ -5,6 +5,8 @@ struct
   open LineRange
   open Renderer
 
+  type Position = int * int
+
   datatype LabelKind = NORMAL | ERROR | WARNING | INFO
   fun kind_to_color NORMAL = Colors.white
     | kind_to_color ERROR = Colors.red
@@ -67,20 +69,19 @@ struct
       List.filter label_in_range (#labels report)
     end
 
-  fun process_report (report: t) =
+  fun output_report (report: t) =
     let
       val lines: LineRange.line_info list = report_lines report
-      val report_content = String.concat (List.map (fn (l: LineRange.line_info) => #content l ^ "\n") lines)
+      (* val report_content = String.concat (List.map (fn (l: LineRange.line_info) => #content l ^ "\n") lines) *)
 
       val num_skipped = ref 0
       val in_selection = ref false
       val has_selection = Option.isSome (#selection report)
-      val (span_start, span_end) = Option.valOf (#span report)
+      (* val (span_start, span_end) = Option.valOf (#span report) *)
 
       fun process_line (line: LineRange.line_info) =
         let
           val labels: label list = labels_for_line report line
-          val line_content = #content line
           val line_number = #line_number line
           val line_start = #start_pos line
           val line_end = #end_pos line
@@ -140,29 +141,4 @@ struct
       List.app process_line lines;
       Renderer.render_report_footer ()
     end
-
-(* fun report (msg : string) = print (msg ^ "\n") *)
 end
-
-
-fun file_to_char_list file =
-  let
-    val inStream = TextIO.openIn file
-    fun readChar inStream =
-      case TextIO.inputLine inStream of
-        NONE => []
-      | SOME line => String.explode line @ readChar inStream
-  in
-    readChar inStream
-  end
-
-fun print_list [] _ = ()
-  | print_list (x :: xs) idx =
-      (print (Int.toString idx ^ ": " ^ Char.toString x ^ "\n"); print_list xs (idx + 1))
-
-(* val _ = print_list (file_to_char_list "test/fizzbuzz.sml") 0 *)
-val report = Report.make_report "test/fizzbuzz.sml"
-val report = Report.set_selection report 35 147 "case expression must return string"
-val report = Report.add_label report Report.INFO "expected return type string" 22 28
-val report = Report.add_label report Report.ERROR "got type int" 154 155
-val _ = Report.process_report report

@@ -9,17 +9,17 @@ struct
       text
     end
 
-  fun quickSort _ [] = []
-    | quickSort cmp (pivot :: rest) =
-        let
-          fun partition ([], less, greater) = (less, greater)
-            | partition (x :: xs, less, greater) =
-                case cmp (x, pivot) of
-                  LESS => partition (xs, x :: less, greater)
-                | _ => partition (xs, less, x :: greater)
+  fun split_lines text =
+    String.tokens (fn c => c = #"\n") text
+  fun split_words text = String.tokens Char.isSpace text
 
-          val (less, greater) = partition (rest, [], [])
-        in
-          quickSort cmp less @ [pivot] @ quickSort cmp greater
-        end
+  fun take_until (str: string) (ls: string list) =
+    let
+      fun take_until' (str: string) (ls: string list) (acc: string list) =
+        case ls of
+          [] => (acc, [])
+        | x :: xs => if x = str then (acc, x :: xs) else take_until' str xs (acc @ [x])
+    in
+      take_until' str ls []
+    end
 end

@@ -82,8 +82,9 @@ struct
            | _ => in_multi)
 
   fun render_report_header file =
-    let val _ = print ("   " ^ (Chars.unicode Chars.LTop) ^ (Chars.unicode Chars.Hbar))
-    in print ("[" ^ file ^ "]:\n")
+    let val _ = print ("   " ^ (Chars.unicode Chars.LTop) ^
+    (Chars.unicode Chars.Hbar))
+    in print (" " ^ file ^ ":\n")
     end
 
   fun render_report_footer () =
@@ -95,11 +96,13 @@ struct
     let
       val rendering = render_rline lines false
     in
-      print ("   " ^ (Chars.unicode Chars.LTop) ^ (Chars.unicode Chars.Hbar));
-      print ("[" ^ file ^ "]:\n");
+      (* print ("   " ^ (Chars.unicode Chars.LTop) ^ (Chars.unicode Chars.Hbar)); *)
+      (* print ("[" ^ file ^ "]:\n"); *)
+      render_report_header file;
 
       print rendering;
-      print (pad_left (Chars.unicode Chars.Hbar) 2);
-      print ((Chars.unicode Chars.RBot) ^ "\n")
+      render_report_footer ()
+      (* print (pad_left (Chars.unicode Chars.Hbar) 2); *)
+      (* print ((Chars.unicode Chars.RBot) ^ "\n") *)
     end
 end

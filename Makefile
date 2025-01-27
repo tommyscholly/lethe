@@ -10,7 +10,7 @@ SMLFMT := $(shell command -v $(FORMATTER) 2> /dev/null)
 
 .PHONY: all build test format clean
 
-all: build test
+all: build
 
 build: check-mlton
 	@echo "Building $(TARGET)..."
