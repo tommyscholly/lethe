@@ -163,7 +163,7 @@ fun print_list [] _ = ()
 
 (* val _ = print_list (file_to_char_list "test/fizzbuzz.sml") 0 *)
 val report = Report.make_report "test/fizzbuzz.sml"
-val report = Report.set_selection report 35 154 "case expression must return string"
+val report = Report.set_selection report 35 147 "case expression must return string"
 val report = Report.add_label report Report.INFO "expected return type string" 22 28
 val report = Report.add_label report Report.ERROR "got type int" 154 155
 val _ = Report.process_report report
