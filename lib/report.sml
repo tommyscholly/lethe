@@ -74,6 +74,11 @@ struct
       val lines: LineRange.line_info list = report_lines report
       (* val report_content = String.concat (List.map (fn (l: LineRange.line_info) => #content l ^ "\n") lines) *)
 
+      val padding_ident = List.foldl (fn (l,
+      acc) => Int.max (String.size (Int.toString (#line_number l)), acc))
+      0 lines + 2
+      val _ = Renderer.set_padding padding_ident
+
       val num_skipped = ref 0
       val in_selection = ref false
       val has_selection = Option.isSome (#selection report)
@@ -90,8 +95,12 @@ struct
           fun display () =
             if List.null labels then
               let
-                val line =
-                  Renderer.render_line (Renderer.NormalLine line_content, line_number, Colors.white, !in_selection)
+                (* val line = *)
+                (*   Renderer.render_line (Renderer.NormalLine line_content, line_number, Colors.white, !in_selection) *)
+                val line = if !num_skipped < 2 then
+                  Renderer.render_line (Renderer.SkipLine, line_number
+                  ,Colors.white, false)
+                else ""
               in
                 if has_selection then
                   let
@@ -103,9 +112,11 @@ struct
                       ; in_selection := true
                       )
                     else
+                      num_skipped := !num_skipped + 1;
                       print line
                   end
                 else
+                  num_skipped := !num_skipped + 1;
                   print line
               end
             else
@@ -137,8 +148,8 @@ struct
           display ()
         end
     in
-      Renderer.render_report_header (#file report);
-      List.app process_line lines;
-      Renderer.render_report_footer ()
+        Renderer.render_report_header padding_ident (#file report);
+        List.app process_line lines;
+        Renderer.render_report_footer padding_ident ()
     end
 end

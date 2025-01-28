@@ -15,6 +15,10 @@ struct
   datatype Render =
     RenderLine of Line * int * string
 
+  val padding_req = ref 0
+
+  fun set_padding n = padding_req := n
+
   fun pad_left str n =
     if n = 0 then str else str ^ pad_left str (n - 1)
 
@@ -22,11 +26,18 @@ struct
   fun line_padding line_no in_multi =
     let
       val line_no_padding = " " ^ Int.toString line_no ^ " "
+      val line_no_padding = if String.size line_no_padding <
+      !padding_req then
+        pad_left " " (!padding_req - String.size line_no_padding - 1) ^
+        line_no_padding
+      else line_no_padding
+      (* 1 *)
       val multi_padding = if in_multi then " " ^ (Chars.unicode Chars.Vbar) else ""
       (* 3, 5 *)
       val line_padding = if in_multi then " " else "   "
 
-      val underline_vbar = (StringCvt.padLeft #" " (String.size line_no_padding) "") ^ (Chars.unicode Chars.VbarBreak)
+      val underline_vbar = (StringCvt.padLeft #" " (String.size
+      line_no_padding) "") ^ (Chars.ascii Chars.VbarGap)
     in
       ( line_no_padding ^ (Chars.unicode Chars.Vbar) ^ multi_padding (* )^ "   " *)
       , underline_vbar ^ multi_padding
@@ -81,28 +92,29 @@ struct
            | MultiLineEnd _ => false
            | _ => in_multi)
 
-  fun render_report_header file =
-    let val _ = print ("   " ^ (Chars.unicode Chars.LTop) ^
-    (Chars.unicode Chars.Hbar))
+  fun render_report_header pad_length file =
+    let val _ = print ((pad_left " " (pad_length - 1)) ^ (Chars.unicode Chars.LTop) ^ (Chars.unicode Chars.Hbar))
     in print (" " ^ file ^ ":\n")
     end
 
-  fun render_report_footer () =
-    let val _ = print (pad_left (Chars.unicode Chars.Hbar) 2)
+  fun render_report_footer padding_indent() =
+    let val _ = print (pad_left (Chars.unicode Chars.Hbar)
+    (padding_indent - 1))
     in print ((Chars.unicode Chars.RBot) ^ "\n")
     end
 
   fun render file lines =
     let
       val rendering = render_rline lines false
+      val pad_length = Util.idx_of (Chars.unicode Chars.Vbar) rendering
     in
       (* print ("   " ^ (Chars.unicode Chars.LTop) ^ (Chars.unicode Chars.Hbar)); *)
       (* print ("[" ^ file ^ "]:\n"); *)
-      render_report_header file;
+      render_report_header (Option.valOf pad_length) file;
 
-      print rendering;
-      render_report_footer ()
-      (* print (pad_left (Chars.unicode Chars.Hbar) 2); *)
-      (* print ((Chars.unicode Chars.RBot) ^ "\n") *)
+      print rendering
+    (* render_report_footer () *)
+    (* print (pad_left (Chars.unicode Chars.Hbar) 2); *)
+    (* print ((Chars.unicode Chars.RBot) ^ "\n") *)
     end
 end
